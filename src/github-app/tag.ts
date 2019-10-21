@@ -69,7 +69,7 @@ export type VdTag = VdFileTag | VdBlockTag | VdLineTag
 export type VdTagType = "file" | "block" | "line"
 
 // All tags should have these properties.
-// @VD amilner42 block
+// @VD amilner42 start
 export interface BaseTag {
   tagType: VdTagType;
   ownerGroups: TOG.Group[];
@@ -78,7 +78,7 @@ export interface BaseTag {
   startLine: number;
   endLine: number;
 }
-// @VD end-block
+// @VD end
 
 // A tag representing documentation ownership of an entire file.
 export type VdFileTag = BaseTag & {
@@ -101,7 +101,7 @@ export type VdLineTag = BaseTag & {
 
 Note: This does not mutate the object you pass in, it creates a new object.
 
-@VD amilner42 block
+@VD amilner42 start
 */
 export const parseTags = (diffWF: FileDiffWithCode): FileDiffWithCodeAndTags => {
 
@@ -145,7 +145,7 @@ export const parseTags = (diffWF: FileDiffWithCode): FileDiffWithCodeAndTags => 
 
   } // end switch
 }
-// @VD end-block
+// @VD end
 
 /** Get all the tags for a given file of a specific programming language.
 
@@ -160,7 +160,7 @@ export const getFileTags = (language: Lang.Language, fileContent: string, filePa
 
   @throws A TODO error when there is more than one tag annotation on that line.
 
-  @VD amilner42 block
+  @VD amilner42 start
 */
 export const getTagIndexFromAnnotationLine = (tags: VdTag[], tagAnnotationLine: number): F.Maybe<number> => {
 
@@ -182,4 +182,4 @@ export const getTagIndexFromAnnotationLine = (tags: VdTag[], tagAnnotationLine: 
 
   return index;
 }
-// @VD end-block
+// @VD end

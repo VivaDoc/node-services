@@ -18,7 +18,7 @@ export const func = () => {
   // @VD amilner42 block
   a = 2
   b = 3
-  // @VD end-block
+  // @VD end
   ...
 }
 `
@@ -78,7 +78,7 @@ const VALID_JAVASCRIPT_TESTS: TestTable = [
           "  // @VD amilner42 block",
           "  a = 2",
           "  b = 3",
-          "  // @VD end-block"
+          "  // @VD end"
         ],
         "endLine": 11,
         "ownerGroups": [ [ "amilner42" ] ],
@@ -150,7 +150,7 @@ some code
 
 some code
 
-// @VD end-block
+// @VD end
 `
 
 const JAVASCRIPT_OVERLAPPING_BLOCK_TAGS_TEXT =`// @VD amilner42 block
@@ -160,9 +160,9 @@ some code
 
 some code
 
-// @VD end-block
+// @VD end
 
-// @VD end-block
+// @VD end
 `
 
 const INVALID_JAVASCRIPT_TESTS: TestTable = [

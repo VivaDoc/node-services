@@ -82,7 +82,7 @@ const logError = async (err: any, errorSource: "github-app" | "api", webhookName
 //
 // Will catch and log errors. It will handle both single errors and nested arrays of errors properly.
 //
-// @VD amilner42 block
+// @VD amilner42 start
 export const webhookErrorWrapper =
   async ( webhookName: string
         , webhookCode: () => Promise<void>
@@ -94,7 +94,7 @@ export const webhookErrorWrapper =
     await logErrors(err, "github-app", webhookName);
   }
 }
-// @VD end-block
+// @VD end
 
 
 export const getStack = (): string => {

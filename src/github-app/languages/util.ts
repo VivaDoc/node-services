@@ -8,6 +8,7 @@ import * as File from "../../file"
 import * as SH from "../../string-helpers"
 import * as Tag from "../tag"
 import * as F from "../../functional"
+import { VdTagType } from '../tag';
 
 
 /** All VD information must have this prefix
@@ -31,14 +32,14 @@ const MATCH_VD_COMMENT_PREFIX_REGEX = /(?<=^|\s)@VD(?=\s|$)/g
   NOTE: You can pass the full comment to detect matches or even a single line (possibly an AlteredLine) to see if there
         is an annotation on that specific line of the comment.
 */
-const MATCH_VD_COMMENT_TAG_ANNOTATION_REGEX = /([^]*?)(^|\r\n|\r|\n|\s)@VD ([a-zA-Z0-9-|,]*) (block|file|line)(?=\s|$)/
+const MATCH_VD_COMMENT_TAG_ANNOTATION_REGEX = /([^]*?)(^|\r\n|\r|\n|\s)@VD ([a-zA-Z0-9-|,]*) start(?=\s|$)/
 
 /** The end of a block tag.
 
   NOTE: You can pass the full comment to detect matches or even a single line (possibly an AlteredLine) to see if there
         is an annotation on that specific line of the comment.
 */
-const MATCH_VD_COMMENT_END_BLOCK_ANNOTATION_REGEX = /(^|\s)@VD end-block(?=\s|$)/
+const MATCH_VD_COMMENT_END_BLOCK_ANNOTATION_REGEX = /(^|\s)@VD end(?=\s|$)/
 
 /** To keep track of the existance of some error during parsing. */
 export class ErrorHappenedStrategy extends DefaultErrorStrategy {
@@ -105,7 +106,7 @@ export const matchSingleVdTagAnnotation =
 
   // Matched a single tag
   if (hasMatchedTag) {
-    const [ , optionalCharsBeforeAnnotation, newLineOrSpaceBeforeTag, ownerGroupsAsString, tagType ] =
+    const [ , optionalCharsBeforeAnnotation, newLineOrSpaceBeforeTag, ownerGroupsAsString ] =
       matchTagAnnotation as [ string, string, string, string, Tag.VdTagType ]
     const tagAnnotationLineOffset =
       SH.getNumberOfNewLineTerminators(optionalCharsBeforeAnnotation) +
@@ -113,6 +114,7 @@ export const matchSingleVdTagAnnotation =
 
     const ownerGroups = TOG.parseGroupsFromString(ownerGroupsAsString);
 
+    const tagType: VdTagType = "block";
     return F.branch3({ ownerGroups, tagType, tagAnnotationLineOffset })
   }
 
