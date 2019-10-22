@@ -4,7 +4,6 @@ import * as R from "ramda";
 
 import * as TOG from "../../tag-owner-group"
 import * as AppError from "../../app-error"
-import * as File from "../../file"
 import * as Tag from "../tag"
 import * as LangUtil from "./util"
 
@@ -64,13 +63,13 @@ export interface ReducedFileAst {
 }
 
 
-/** A ReducedCommentNode must repreent a comment that has some VD information in it. */
+/** A ReducedCommentNode must represent a comment that has some VD information in it. */
 export interface ReducedCommentNode {
   startLine: number;
   endLine: number;
   data:
-    { dataType: "tag-declaration", ownerGroups: TOG.Group[], tagType: Tag.VdTagType, tagAnnotationLine: number } |
-    { dataType: "tag-end-block", seen: boolean /** meta-data for whether it's been seen */ }
+    { dataType: "start-annotation", ownerGroups: TOG.Group[], tagAnnotationLine: number } |
+    { dataType: "end-annotation", seen: boolean /** meta-data for whether it's been seen */ }
 }
 
 
@@ -171,18 +170,17 @@ export const getReducedFileAstFromFileAst = (fileAst: FileAst, filePath: string)
         reducedFileAst.comments[commentNode.endLine] = {
           startLine: commentNode.startLine,
           endLine: commentNode.endLine,
-          data: { dataType: "tag-end-block", seen: false }
+          data: { dataType: "end-annotation", seen: false }
         }
         continue
 
       case "case-3":
-        const { ownerGroups, tagType, tagAnnotationLineOffset } = match.value
+        const { ownerGroups, tagAnnotationLineOffset } = match.value
         reducedFileAst.comments[commentNode.endLine] = {
           startLine: commentNode.startLine,
           endLine: commentNode.endLine,
           data: {
-            dataType: "tag-declaration",
-            tagType,
+            dataType: "start-annotation",
             ownerGroups,
             tagAnnotationLine: commentNode.startLine + tagAnnotationLineOffset
           }
@@ -218,93 +216,59 @@ export const standardTagsFromReducedFileAst =
 
     switch (reducedCommentNode.data.dataType ) {
 
-      case "tag-declaration":
+      case "start-annotation":
 
-        switch ( reducedCommentNode.data.tagType ) {
+        const commentLineNumbers = R.pipe(
+          R.map(parseInt),
+          R.sort((a, b) => { return a - b })
+        )(Object.keys(reducedFileAst.comments))
 
-          case "file":
-            vdTags.push({
-              tagType: "file",
-              ownerGroups: reducedCommentNode.data.ownerGroups,
-              tagAnnotationLine: reducedCommentNode.data.tagAnnotationLine,
-              content: File.splitFileContentIntoLines(fileContent),
-              startLine: 1,
-              endLine: File.getNumberOfLinesForFile(fileContent)
-            })
-            continue
+        // Find end annotation
+        for (let commentLineNumber of commentLineNumbers) {
+          if (commentLineNumber < reducedCommentNode.endLine) {
+            continue;
+          }
 
-          case "line": {
+          const currentCommentNode = reducedFileAst.comments[commentLineNumber]
+
+          if (currentCommentNode.data.dataType === "end-annotation" ) {
+
+            if (currentCommentNode.data.seen) {
+              const multipleEndAnnotationsError: AppError.ParseTagError = {
+                parseTagError: true,
+                errorName: "end-annotation-used-multiple-times",
+                clientExplanation: `You cannot have the same end annotation used by multiple start annotations. File: ${filePath}, line number: ${currentCommentNode.startLine}`
+              }
+
+              throw multipleEndAnnotationsError;
+            }
+
             const startLine = reducedCommentNode.startLine
-            const endLine = reducedCommentNode.endLine + 1 // + 1 because it owns a single line
+            const endLine = reducedFileAst.comments[commentLineNumber].endLine
 
+            currentCommentNode.data.seen = true
             vdTags.push({
-              tagType: "line",
-              ownerGroups: reducedCommentNode.data.ownerGroups,
               startLine,
               endLine,
+              ownerGroups: reducedCommentNode.data.ownerGroups,
               tagAnnotationLine: reducedCommentNode.data.tagAnnotationLine,
               content: LangUtil.getContentByLineNumbers(fileContent, startLine, endLine)
             })
-            continue
+            continue loopAnalyzeComments
           }
+        }
 
-          case "block": {
+        const noEndAnnotationError: AppError.ParseTagError = {
+          parseTagError: true,
+          errorName: "no-end-annotation",
+          clientExplanation: `Every start annotation needs an end annotation. File: ${filePath}, line number: ${reducedCommentNode.startLine}`
+        }
 
-            const commentLineNumbers = R.pipe(
-              R.map(parseInt),
-              R.sort((a, b) => { return a - b })
-            )(Object.keys(reducedFileAst.comments))
+        throw noEndAnnotationError;
 
-            // Find end-block annotation
-            for (let commentLineNumber of commentLineNumbers) {
-              if (commentLineNumber < reducedCommentNode.endLine) {
-                continue;
-              }
+    }
 
-              const currentCommentNode = reducedFileAst.comments[commentLineNumber]
-
-              if (currentCommentNode.data.dataType === "tag-end-block" ) {
-
-                if (currentCommentNode.data.seen) {
-                  const overusedEndBlockErr: AppError.ParseTagError = {
-                    parseTagError: true,
-                    errorName: "end-block-used-multiple-times",
-                    clientExplanation: `You cannot have the same end-block used by multiple block tags. File: ${filePath}, line number: ${currentCommentNode.startLine}`
-                  }
-
-                  throw overusedEndBlockErr;
-                }
-
-                const startLine = reducedCommentNode.startLine
-                const endLine = reducedFileAst.comments[commentLineNumber].endLine
-
-                currentCommentNode.data.seen = true
-                vdTags.push({
-                  tagType: "block",
-                  startLine,
-                  endLine,
-                  ownerGroups: reducedCommentNode.data.ownerGroups,
-                  tagAnnotationLine: reducedCommentNode.data.tagAnnotationLine,
-                  content: LangUtil.getContentByLineNumbers(fileContent, startLine, endLine)
-                })
-                continue loopAnalyzeComments
-              }
-            }
-
-            const noEndBlockErr: AppError.ParseTagError = {
-              parseTagError: true,
-              errorName: "no-end-block",
-              clientExplanation: `Every block tag needs an end-block. File: ${filePath}, line number: ${reducedCommentNode.startLine}`
-            }
-
-            throw noEndBlockErr;
-          }
-
-        } // end inner switch
-
-    } // end switch
-
-  } // end for loop
+  }
 
   return vdTags
 }

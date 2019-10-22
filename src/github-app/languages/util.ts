@@ -6,9 +6,7 @@ import * as TOG from "../../tag-owner-group";
 import * as AppError from "../../app-error"
 import * as File from "../../file"
 import * as SH from "../../string-helpers"
-import * as Tag from "../tag"
 import * as F from "../../functional"
-import { VdTagType } from '../tag';
 
 
 /** All VD information must have this prefix
@@ -21,25 +19,24 @@ const MATCH_VD_COMMENT_PREFIX_REGEX = /(?<=^|\s)@VD(?=\s|$)/g
 
 /** Matching a new tag annotation
 
-  Captures 4 groups:
+  Captures 3 groups:
     - All optional characters before the annotation, allowing to figure out the annotation offset
     - One forced: start of string or newline or space before the tag annotation
     - The owner groups, which are of the form:
       - <github-username>[|<github-username>|...][,<github-username>[|<github-username>|...]][,...]
       - currently the regex just parses all legal chars and does not enforce the form
-    - The type of tag annotation
 
   NOTE: You can pass the full comment to detect matches or even a single line (possibly an AlteredLine) to see if there
         is an annotation on that specific line of the comment.
 */
-const MATCH_VD_COMMENT_TAG_ANNOTATION_REGEX = /([^]*?)(^|\r\n|\r|\n|\s)@VD ([a-zA-Z0-9-|,]*) start(?=\s|$)/
+const MATCH_VD_COMMENT_START_ANNOTATION_REGEX = /([^]*?)(^|\r\n|\r|\n|\s)@VD ([a-zA-Z0-9-|,]*) start(?=\s|$)/
 
-/** The end of a block tag.
+/** An end annotation.
 
   NOTE: You can pass the full comment to detect matches or even a single line (possibly an AlteredLine) to see if there
         is an annotation on that specific line of the comment.
 */
-const MATCH_VD_COMMENT_END_BLOCK_ANNOTATION_REGEX = /(^|\s)@VD end(?=\s|$)/
+const MATCH_VD_COMMENT_END_ANNOTATION_REGEX = /(^|\s)@VD end(?=\s|$)/
 
 /** To keep track of the existance of some error during parsing. */
 export class ErrorHappenedStrategy extends DefaultErrorStrategy {
@@ -62,8 +59,8 @@ export class ErrorHappenedStrategy extends DefaultErrorStrategy {
   Throws an error if the string doesn't follow VD annotation rules:
     1. Can only have 1 tag annotation prefix (` @VD`)
       - This thereby prevents multiple full tag annotations
-        - Prevents a tag and an end block in the same comment.
-    2. Must have a full tag/end-block if you have the @VD prefix somewhere
+        - Prevents a start and end annotation in the same comment.
+    2. Must have a start or end annotation if you have the @VD prefix
 
   @THROWS only `AppError.GithubAppParseTagError`.
 */
@@ -71,7 +68,7 @@ export const matchSingleVdTagAnnotation =
     ( str: string
     , filePath: string
     , lineNumber: string
-    ): F.Tri<"no-match", "match-block", { ownerGroups: TOG.Group[], tagType: Tag.VdTagType, tagAnnotationLineOffset: number }> => {
+    ): F.Tri<"no-match", "match-end-annotation", { ownerGroups: TOG.Group[], tagAnnotationLineOffset: number }> => {
 
   const matchVdTagAnnotationPrefix = str.match(MATCH_VD_COMMENT_PREFIX_REGEX)
 
@@ -89,37 +86,35 @@ export const matchSingleVdTagAnnotation =
     throw multiPrefixErr;
   }
 
-  const matchTagAnnotation = str.match(MATCH_VD_COMMENT_TAG_ANNOTATION_REGEX)
-  const matchEndBlock = str.match(MATCH_VD_COMMENT_END_BLOCK_ANNOTATION_REGEX)
-  const hasMatchedTag = matchTagAnnotation !== null
-  const hasMatchedEndBlock =  matchEndBlock !== null
+  const matchStartAnnotation = str.match(MATCH_VD_COMMENT_START_ANNOTATION_REGEX)
+  const matchEndAnnotation = str.match(MATCH_VD_COMMENT_END_ANNOTATION_REGEX)
+  const hasMatchedStartAnnotation = matchStartAnnotation !== null
+  const hasMatchedEndAnnotation =  matchEndAnnotation !== null
 
-  if(!hasMatchedEndBlock && !hasMatchedTag) {
+  if(!hasMatchedEndAnnotation && !hasMatchedStartAnnotation) {
     const prefixWithNoAnnotationErr: AppError.ParseTagError = {
-      errorName: "prefix-with-no-annotation-or-end-block",
+      errorName: "prefix-with-no-start-or-end-annotation",
       parseTagError: true,
-      clientExplanation: `You must have a VD tag annotation or end-block if you declare the @VD prefix. File: ${filePath}, line number: ${lineNumber}`
+      clientExplanation: `You must have a VD start or end annotation if you declare the @VD prefix. File: ${filePath}, line number: ${lineNumber}`
     }
 
     throw prefixWithNoAnnotationErr;
   }
 
   // Matched a single tag
-  if (hasMatchedTag) {
+  if (hasMatchedStartAnnotation) {
     const [ , optionalCharsBeforeAnnotation, newLineOrSpaceBeforeTag, ownerGroupsAsString ] =
-      matchTagAnnotation as [ string, string, string, string, Tag.VdTagType ]
+      matchStartAnnotation as [ string, string, string, string ]
     const tagAnnotationLineOffset =
       SH.getNumberOfNewLineTerminators(optionalCharsBeforeAnnotation) +
       SH.getNumberOfNewLineTerminators(newLineOrSpaceBeforeTag);
 
     const ownerGroups = TOG.parseGroupsFromString(ownerGroupsAsString);
 
-    const tagType: VdTagType = "block";
-    return F.branch3({ ownerGroups, tagType, tagAnnotationLineOffset })
+    return F.branch3({ ownerGroups, tagAnnotationLineOffset })
   }
 
-  // Matched end block
-  return F.branch2<"match-block">("match-block");
+  return F.branch2<"match-end-annotation">("match-end-annotation");
 }
 
 

@@ -57,43 +57,18 @@ export type NewFileDiffWithCodeAndTags = NewFileDiffWithCode & HasCurrentTags
 
 export type DeletedFileDiffWithCodeAndTags= DeletedFileDiffWithCode & HasCurrentTags
 
-/** All possible VD tag types
- *
- * Tags are the core of VivaDoc, allowing the user to tag some documentation that they'd like to be responsible for.
+/** Tags are the core of VivaDoc, allowing the user to tag some documentation that they'd like to be responsible for.
  *
  * @VD amilner42 line
  */
-export type VdTag = VdFileTag | VdBlockTag | VdLineTag
-
-// All tag types.
-export type VdTagType = "file" | "block" | "line"
-
-// All tags should have these properties.
-// @VD amilner42 start
-export interface BaseTag {
-  tagType: VdTagType;
+export type VdTag = {
   ownerGroups: TOG.Group[];
   tagAnnotationLine: number;
   content: string[];
   startLine: number;
   endLine: number;
 }
-// @VD end
 
-// A tag representing documentation ownership of an entire file.
-export type VdFileTag = BaseTag & {
-  tagType: "file";
-}
-
-// A tag representing documentation ownership of a explicitly specified block.
-export type VdBlockTag = BaseTag & {
-  tagType: "block";
-}
-
-// A tag representing documentation ownership of a single line of code.
-export type VdLineTag = BaseTag & {
-  tagType: "line";
-}
 
 /** EXTERNAL FUNCTIONS */
 

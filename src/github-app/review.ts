@@ -347,7 +347,7 @@ export const getTagMapBetweenAllTags =
 
     switch (matchTag.branchTag) {
 
-      // No VD annotation or just matched an end-block tag
+      // Either no VD annotation or an end annotation.
       case "case-1":
       case "case-2":
         continue;
