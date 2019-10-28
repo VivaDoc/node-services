@@ -30,14 +30,14 @@ export interface PullRequestReview {
 
 // Errors on commit reviews with a possbile `clientExplanation` meant to be rendered to the user.
 //
-// @VD amilner42 block
+// @VD amilner42 start
 export interface CommitReviewError {
   commitReviewError: true;
   commitId: string;
   failedToSaveCommitReview: boolean;
   clientExplanation: string;
 }
-// @VD end-block
+// @VD end
 
 
 const PullRequestReviewSchema = new mongoose.Schema({

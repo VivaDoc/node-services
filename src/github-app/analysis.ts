@@ -1055,7 +1055,7 @@ const getBaseAndLastAnalyzedCommit =
 // Note `err` is optional because it may be the case that nothing in the app errored, we simply have just a
 //       `commitReviewError` because the user mis-used the app.
 //
-// @VD amilner42 block
+// @VD amilner42 start
 const recoverFromErrorInPipeline =
   async ( err: F.Maybe<any>
         , setStatusTo: F.Maybe<"failure">
@@ -1151,7 +1151,7 @@ const recoverFromErrorInPipeline =
   );
 
 }
-// @VD end-block
+// @VD end
 
 
 const attachCode = async (

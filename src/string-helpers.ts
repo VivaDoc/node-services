@@ -20,7 +20,7 @@ export const REGEX_MATCH_NEWLINE = /\r\n|\r|\n/g
 - Ending in a newline-terminator is not a new line, this is 1 line: "1\n".
 - A single blank string "" is 0 lines.
 
-@VD amilner42 block
+@VD amilner42 start
 */
 export const getNumberOfLines = (str: string): number => {
   if (str === "") { return 0 }
@@ -31,7 +31,7 @@ export const getNumberOfLines = (str: string): number => {
 
   return lines.length
 }
-// @VD end-block
+// @VD end
 
 /** Count the number of newline terminators in a string. */
 export const getNumberOfNewLineTerminators = (str: string) => {

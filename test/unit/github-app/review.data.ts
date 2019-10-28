@@ -10,7 +10,6 @@ export const CALCULATE_REVIEWS_FROM_MODIFICATION_TESTS: CalculateReviewsTestTabl
     [
       [
         {
-          "tagType": "line",
           "ownerGroups": [ [ "amilner42" ] ],
           "startLine": 1,
           "endLine": 2,
@@ -23,7 +22,6 @@ export const CALCULATE_REVIEWS_FROM_MODIFICATION_TESTS: CalculateReviewsTestTabl
       ],
       [
         {
-          "tagType": "line",
           "ownerGroups": [ [ "amilner42" ] ],
           "startLine": 1,
           "endLine": 2,
@@ -52,7 +50,6 @@ export const CALCULATE_REVIEWS_FROM_MODIFICATION_TESTS: CalculateReviewsTestTabl
     [ {
         reviewType: "modified",
         tag: {
-          "tagType": "line",
           "ownerGroups": [ [ "amilner42" ] ],
           "startLine": 1,
           "endLine": 2,
@@ -84,7 +81,6 @@ export const CALCULATE_REVIEWS_FROM_MODIFICATION_TESTS: CalculateReviewsTestTabl
     [
       [
         {
-          "tagType": "line",
           "ownerGroups": [ [ "amilner42" ] ],
           "startLine": 1,
           "endLine": 2,
@@ -97,7 +93,6 @@ export const CALCULATE_REVIEWS_FROM_MODIFICATION_TESTS: CalculateReviewsTestTabl
       ],
       [
         {
-          "tagType": "line",
           "ownerGroups": [ [ "amilner42" ] ],
           "startLine": 2,
           "endLine": 3,
@@ -130,7 +125,6 @@ export const CALCULATE_REVIEWS_FROM_MODIFICATION_TESTS: CalculateReviewsTestTabl
     [
       [
         {
-          "tagType": "line",
           "ownerGroups": [ [ "amilner42" ] ],
           "startLine": 2,
           "endLine": 3,
@@ -143,7 +137,6 @@ export const CALCULATE_REVIEWS_FROM_MODIFICATION_TESTS: CalculateReviewsTestTabl
       ],
       [
         {
-          "tagType": "line",
           "ownerGroups": [ [ "amilner42" ] ],
           "startLine": 1,
           "endLine": 2,

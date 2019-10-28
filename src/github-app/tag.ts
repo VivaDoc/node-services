@@ -57,43 +57,18 @@ export type NewFileDiffWithCodeAndTags = NewFileDiffWithCode & HasCurrentTags
 
 export type DeletedFileDiffWithCodeAndTags= DeletedFileDiffWithCode & HasCurrentTags
 
-/** All possible VD tag types
- *
- * Tags are the core of VivaDoc, allowing the user to tag some documentation that they'd like to be responsible for.
+/** Tags are the core of VivaDoc, allowing the user to tag some documentation that they'd like to be responsible for.
  *
  * @VD amilner42 line
  */
-export type VdTag = VdFileTag | VdBlockTag | VdLineTag
-
-// All tag types.
-export type VdTagType = "file" | "block" | "line"
-
-// All tags should have these properties.
-// @VD amilner42 block
-export interface BaseTag {
-  tagType: VdTagType;
+export type VdTag = {
   ownerGroups: TOG.Group[];
   tagAnnotationLine: number;
   content: string[];
   startLine: number;
   endLine: number;
 }
-// @VD end-block
 
-// A tag representing documentation ownership of an entire file.
-export type VdFileTag = BaseTag & {
-  tagType: "file";
-}
-
-// A tag representing documentation ownership of a explicitly specified block.
-export type VdBlockTag = BaseTag & {
-  tagType: "block";
-}
-
-// A tag representing documentation ownership of a single line of code.
-export type VdLineTag = BaseTag & {
-  tagType: "line";
-}
 
 /** EXTERNAL FUNCTIONS */
 
@@ -101,7 +76,7 @@ export type VdLineTag = BaseTag & {
 
 Note: This does not mutate the object you pass in, it creates a new object.
 
-@VD amilner42 block
+@VD amilner42 start
 */
 export const parseTags = (diffWF: FileDiffWithCode): FileDiffWithCodeAndTags => {
 
@@ -145,7 +120,7 @@ export const parseTags = (diffWF: FileDiffWithCode): FileDiffWithCodeAndTags => 
 
   } // end switch
 }
-// @VD end-block
+// @VD end
 
 /** Get all the tags for a given file of a specific programming language.
 
@@ -160,7 +135,7 @@ export const getFileTags = (language: Lang.Language, fileContent: string, filePa
 
   @throws A TODO error when there is more than one tag annotation on that line.
 
-  @VD amilner42 block
+  @VD amilner42 start
 */
 export const getTagIndexFromAnnotationLine = (tags: VdTag[], tagAnnotationLine: number): F.Maybe<number> => {
 
@@ -182,4 +157,4 @@ export const getTagIndexFromAnnotationLine = (tags: VdTag[], tagAnnotationLine: 
 
   return index;
 }
-// @VD end-block
+// @VD end

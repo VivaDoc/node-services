@@ -33,7 +33,7 @@ export interface HasLines {
   of the file - should only be used for modified files where the line numbers across files are relevant, for new/delted
   files you should `&` the more accurate type `HasLines`.
 
-  @VD amilner42 block
+  @VD amilner42 start
  */
 export interface AlteredLine {
   type: "added" | "deleted";
@@ -41,7 +41,7 @@ export interface AlteredLine {
   previousLineNumber: number;
   content: string;
 }
-// @VD end-block
+// @VD end
 
 export type DiffType = "new" | "modified" | "renamed" | "deleted"
 
@@ -105,7 +105,7 @@ const HUNK_PREVIOUS_RANGE_PREFIX = "-"
 /** External Functions */
 
 // Main function of the module, will parse the git diff into a series of file diffs.
-// @VD amilner42 block
+// @VD amilner42 start
 export const parseDiff = (diffAsStr: string): FileDiff[] => {
   let remainingLines = File.splitFileContentIntoLines(diffAsStr)
   const fileDiffs: FileDiff[] = []
@@ -118,11 +118,11 @@ export const parseDiff = (diffAsStr: string): FileDiff[] => {
 
   return fileDiffs;
 }
-// @VD end-block
+// @VD end
 
 
 // Keeps only languages we support.
-// @VD amilner42 block
+// @VD amilner42 start
 export const toFileDiffsWithLanguage = (fileDiffs: FileDiff[]): FileDiffWithLanguage[] => {
 
   return R.reduce<FileDiff, FileDiffWithLanguage[]>(
@@ -157,7 +157,7 @@ export const toFileDiffsWithLanguage = (fileDiffs: FileDiff[]): FileDiffWithLang
   );
 
 }
-// @VD end-block
+// @VD end
 
 
 /** INTERNAL */

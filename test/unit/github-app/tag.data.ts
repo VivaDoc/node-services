@@ -8,37 +8,37 @@ type TestTable = [ string, Lang.Language, string, null | Tag.VdTag[] ][]
 
 /** Tests for valid files */
 
-const JAVASCRIPT_MANY_TAGS_TEXT = `// @VD amilner42 line
+const JAVASCRIPT_MANY_TAGS_TEXT = `// @VD amilner42 start
 const a = 5;
+// @VD end
 
 // doo doo
 export const func = () => {
   ...
   ...
-  // @VD amilner42 block
+  // @VD amilner42 start
   a = 2
   b = 3
-  // @VD end-block
+  // @VD end
   ...
 }
 `
 
 const JAVASCRIPT_MANY_MULTILINE_COMMENT_TAGS_TEXT = `/*
- @VD amilner42 line
+ @VD amilner42 start
 */
 const a = 5;
+// @VD end
 
-/* @VD amilner42 line
-*/
 export const func = () => {
   ...
   ...
   /*
-  @VD amilner42 block
+  @VD amilner42 start
   */
   a = 2
   b = 3
-  /* @VD end-block
+  /* @VD end
    */
   ...
 }
@@ -64,27 +64,34 @@ const VALID_JAVASCRIPT_TESTS: TestTable = [
     [
       {
         "content": [
-          "// @VD amilner42 line",
-          "const a = 5;"
+          "// @VD amilner42 start",
+          "const a = 5;",
+          "// @VD end"
         ],
-        "endLine": 2,
-        "ownerGroups": [ [ "amilner42" ] ],
+        "endLine": 3,
+        "ownerGroups": [
+          [
+            "amilner42"
+          ]
+        ],
         "startLine": 1,
-        "tagAnnotationLine": 1,
-        "tagType": "line"
+        "tagAnnotationLine": 1
       },
       {
         "content": [
-          "  // @VD amilner42 block",
+          "  // @VD amilner42 start",
           "  a = 2",
           "  b = 3",
-          "  // @VD end-block"
+          "  // @VD end"
         ],
-        "endLine": 11,
-        "ownerGroups": [ [ "amilner42" ] ],
-        "startLine": 8,
-        "tagAnnotationLine": 8,
-        "tagType": "block"
+        "endLine": 12,
+        "ownerGroups": [
+          [
+            "amilner42"
+          ]
+        ],
+        "startLine": 9,
+        "tagAnnotationLine": 9
       }
     ]
   ],
@@ -96,43 +103,38 @@ const VALID_JAVASCRIPT_TESTS: TestTable = [
       {
         "content": [
           "/*",
-          " @VD amilner42 line",
+          " @VD amilner42 start",
           "*/",
-          "const a = 5;"
+          "const a = 5;",
+          "// @VD end"
         ],
-        "endLine": 4,
-        "ownerGroups": [ [ "amilner42" ] ],
+        "endLine": 5,
+        "ownerGroups": [
+          [
+            "amilner42"
+          ]
+        ],
         "startLine": 1,
-        "tagAnnotationLine": 2,
-        "tagType": "line"
-      },
-      {
-        "content": [
-          "/* @VD amilner42 line",
-          "*/",
-          "export const func = () => {",
-        ],
-        "endLine": 8,
-        "ownerGroups": [ [ "amilner42" ] ],
-        "startLine": 6,
-        "tagAnnotationLine": 6,
-        "tagType": "line"
+        "tagAnnotationLine": 2
       },
       {
         "content": [
           "  /*",
-          "  @VD amilner42 block",
+          "  @VD amilner42 start",
           "  */",
           "  a = 2",
           "  b = 3",
-          "  /* @VD end-block",
+          "  /* @VD end",
           "   */"
         ],
-        "endLine": 17,
-        "ownerGroups": [ [ "amilner42" ] ],
-        "startLine": 11,
-        "tagAnnotationLine": 12,
-        "tagType": "block"
+        "endLine": 16,
+        "ownerGroups": [
+          [
+            "amilner42"
+          ]
+        ],
+        "startLine": 10,
+        "tagAnnotationLine": 11
       }
     ]
   ]
@@ -143,59 +145,53 @@ const VALID_FILE_TESTS: TestTable = VALID_JAVASCRIPT_TESTS
 
 /** Tests for invalid files */
 
-const JAVASCRIPT_BLOCKS_END_IN_SAME_END_BLOCK_TEXT = `// @VD amilner42 block
+const JAVASCRIPT_BLOCKS_END_IN_SAME_END_BLOCK_TEXT = `// @VD amilner42 start
 some code
 
-// @VD amilner42 block
+// @VD amilner42 start
 
 some code
 
-// @VD end-block
+// @VD end
 `
 
-const JAVASCRIPT_OVERLAPPING_BLOCK_TAGS_TEXT =`// @VD amilner42 block
+const JAVASCRIPT_OVERLAPPING_BLOCK_TAGS_TEXT =`// @VD amilner42 start
 some code
 
-// @VD amilner42 block
+// @VD amilner42 start
 
 some code
 
-// @VD end-block
+// @VD end
 
-// @VD end-block
+// @VD end
 `
 
 const INVALID_JAVASCRIPT_TESTS: TestTable = [
   [
-    "Invalid @VD block tag - no end-block",
+    "Invalid @VD tag - no end annotation",
     "JavaScript",
-    `// @VD amilner42 block
+    `// @VD amilner42 start
     const a = 5
     `,
     null
   ],
   [
-    "Invalid random @VD annotation without username and tag type",
+    "Invalid random @VD annotation without username",
     "JavaScript",
     "// @VD ",
     null
   ],
   [
-    "Invalid @VD annotation with improper tag type banana",
+    "Invalid @VD annotation - must write word 'start'",
     "JavaScript",
     "// @VD amilner42 banana ",
     null
   ],
   [
-    "Invalid @VD annotation with improper tag type lines",
+    "Invalid @VD annotation with typo: starts",
     "JavaScript",
-    "// @VD amilner42 lines ",
-    null
-  ],
-  [
-    "Invalid @VD line annotation on the last line",
-    "JavaScript",
-    "/* @VD amilner42 line */",
+    "// @VD amilner42 starts ",
     null
   ],
   [
